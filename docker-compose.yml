@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: rental_db
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql
+    restart: always
+    expose:
+      - 5434
+
+  web:
+    container_name: rental_app
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    expose:
+      - 8000
+    depends_on:
+      - db
+  redis:
+    image: redis:3
+    expose:
+      - 6378
+  celery:
+    restart: always
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    command: celery -A config worker -l info
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+      - web
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+
+volumes:
+  pg_data:
+  static_volume:
+  media_volume:
