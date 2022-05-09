@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 
 # Take environment variables from .env file
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR.parent / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -27,10 +27,11 @@ environ.Env.read_env(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('DJANGO_SECRET_KEY', default='foo')
 
-print(f"Loaded .env Debug is {env('DEBUG')} mode")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
+
+if DEBUG:
+    print(f"Loaded .env Debug is {env('DEBUG')} mode")
 
 ALLOWED_HOSTS = ['*']
 
@@ -79,7 +80,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres://1mac11:supersecretpassword@localhost:5432/rental_db'),
+    'default': env.db('DATABASE_URL', default='postgres://1mac11:supersecretpassword@127.0.0.1:5434/rental_db'),
 }
 
 # Password validation
