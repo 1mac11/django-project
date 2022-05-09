@@ -11,3 +11,4 @@ celery==4.4.1
 redis==3.4.1
 django-environ==0.8.1
 gunicorn
+drf-yasg
