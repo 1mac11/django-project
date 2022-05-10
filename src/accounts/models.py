@@ -2,6 +2,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
+from django_countries.fields import CountryField
 
 
 class UserManager(BaseUserManager):
@@ -43,6 +44,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     phone = PhoneNumberField(blank=True)
+    country = CountryField(countries_flag_url='//localhost:8000/{code}.png', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

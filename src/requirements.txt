@@ -16,3 +16,4 @@ django-phonenumber-field
 phonenumbers
 django-filter
 djangorestframework-simplejwt
+django-countries

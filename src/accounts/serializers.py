@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
+from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # noqa
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -38,16 +39,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 # User serializer
 class UserSerializer(serializers.ModelSerializer):
+    country = CountryField(country_dict=True)
+
     class Meta:
         model = User
-        fields = ('id', 'last_name', 'first_name', 'email', 'phone',)
+        fields = ('id', 'last_name', 'first_name', 'email', 'phone', 'country')
 
 
 class AccessTokenSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # TODO: add user data when generating token for user
-        token['user'] = user.email
+    def validate(self, attrs):
+        email = attrs.get('email')
+        user = User.objects.filter(email=email)
+        if not user.exists():
+            raise ValidationError({"detail": "No active account found with the given credentials"})
 
-        return token
+        attrs = super().validate(attrs)
+        attrs['user'] = UserSerializer(user.last()).data
+        return attrs
